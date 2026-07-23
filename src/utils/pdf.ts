@@ -64,7 +64,7 @@ export async function downloadPredictionsPdf(opts: PdfOptions) {
     doc.setDrawColor(220);
     doc.setFillColor(240);
     doc.rect(barX, barY, barW, 6, "F");
-    doc.setFillColor(120, 90, 240);
+    doc.setFillColor("#7a5af8");
     doc.rect(barX, barY, barW * p.probability, 6, "F");
     y += 30;
   });
