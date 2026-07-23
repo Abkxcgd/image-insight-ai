@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-// Lazy-loaded types (tfjs/mobilenet are dynamically imported to keep initial bundle small
-// and to avoid SSR issues since they rely on browser globals).
 type MobileNetModel = {
   classify: (
-    img: HTMLImageElement,
+    img: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement,
     topk?: number,
   ) => Promise<{ className: string; probability: number }[]>;
 };
@@ -14,14 +12,17 @@ export interface Prediction {
   probability: number;
 }
 
+export const MODEL_NAME = "MobileNet v2 (alpha 1.0)";
+
 export function useImageClassifier() {
   const modelRef = useRef<MobileNetModel | null>(null);
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [isClassifying, setIsClassifying] = useState(false);
   const [predictions, setPredictions] = useState<Prediction[] | null>(null);
+  const [inferenceMs, setInferenceMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Load MobileNet once on mount (client only).
+  // Lazy-load MobileNet only in the browser.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -44,21 +45,26 @@ export function useImageClassifier() {
     };
   }, []);
 
-  // Classify an already-loaded HTMLImageElement, returning top-5 predictions.
   const classify = useCallback(async (img: HTMLImageElement) => {
     if (!modelRef.current) {
       setError("Model is not ready yet. Please wait a moment.");
-      return;
+      return null;
     }
     try {
       setIsClassifying(true);
       setError(null);
       setPredictions(null);
+      setInferenceMs(null);
+      const start = performance.now();
       const results = await modelRef.current.classify(img, 5);
+      const elapsed = Math.round(performance.now() - start);
       setPredictions(results);
+      setInferenceMs(elapsed);
+      return { results, elapsed };
     } catch (e) {
       console.error(e);
       setError("Something went wrong while analyzing the image.");
+      return null;
     } finally {
       setIsClassifying(false);
     }
@@ -66,8 +72,19 @@ export function useImageClassifier() {
 
   const reset = useCallback(() => {
     setPredictions(null);
+    setInferenceMs(null);
     setError(null);
   }, []);
 
-  return { classify, predictions, isModelLoading, isClassifying, error, reset, setError };
+  return {
+    classify,
+    predictions,
+    inferenceMs,
+    isModelLoading,
+    isClassifying,
+    error,
+    reset,
+    setError,
+    modelName: MODEL_NAME,
+  };
 }
