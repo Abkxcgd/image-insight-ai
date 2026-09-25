@@ -8,9 +8,19 @@ import { compressImage, fileToImage, toThumbnail, validateImage } from "@/utils/
 import { PredictionList } from "./PredictionList";
 import { LoadingSkeleton } from "./LoadingSkeleton";
 import { CameraCapture } from "./CameraCapture";
+import type { RuntimeInfo } from "@/lib/inference/types";
+
+interface ClassifierProps {
+  /** Lets the page surface live runtime/hardware info from the active engine. */
+  onRuntimeChange?: (state: {
+    runtime: RuntimeInfo | null;
+    inferenceMs: number | null;
+    fellBackToBrowser: boolean;
+  }) => void;
+}
 
 // Central classifier surface: drag/drop, file picker, or webcam capture.
-export function Classifier() {
+export function Classifier({ onRuntimeChange }: ClassifierProps) {
   const {
     classify,
     predictions,
@@ -21,7 +31,13 @@ export function Classifier() {
     reset,
     setError,
     modelName,
+    runtimeInfo,
+    fellBackToBrowser,
   } = useImageClassifier();
+
+  useEffect(() => {
+    onRuntimeChange?.({ runtime: runtimeInfo, inferenceMs, fellBackToBrowser });
+  }, [onRuntimeChange, runtimeInfo, inferenceMs, fellBackToBrowser]);
 
   const { add: addHistory } = useHistory();
 
