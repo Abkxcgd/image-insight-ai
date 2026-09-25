@@ -1,0 +1,10 @@
+# Install on a Windows on Snapdragon (ARM64) machine with Python 3.11/3.12 ARM64.
+# onnxruntime-qnn ships the QNN Execution Provider and the Qualcomm runtime DLLs.
+onnxruntime-qnn>=1.20.0 ; platform_machine == "ARM64"
+# Non-Snapdragon machines (CPU-only development): plain ONNX Runtime.
+onnxruntime>=1.20.0 ; platform_machine != "ARM64"
+fastapi>=0.115
+uvicorn>=0.32
+python-multipart>=0.0.9
+pillow>=10.4
+numpy>=1.26
