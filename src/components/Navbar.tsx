@@ -13,17 +13,17 @@ export function Navbar() {
             <Sparkles className="h-5 w-5 text-primary-foreground" />
           </div>
           <span className="text-lg font-bold tracking-tight">
-            Vision<span className="gradient-text">AI</span>
+            Image <span className="gradient-text">Insight AI</span>
           </span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
           {[
             { href: "#classify", label: "Classify" },
-            { href: "#how", label: "How it works" },
+            { href: "#status", label: "Runtime" },
             { href: "#model", label: "Model" },
+            { href: "#privacy", label: "Privacy" },
             { href: "#history", label: "History" },
-            { href: "#faq", label: "FAQ" },
           ].map((l) => (
             <a
               key={l.href}
@@ -33,6 +33,12 @@ export function Navbar() {
               {l.label}
             </a>
           ))}
+          <Link
+            to="/benchmark"
+            className="rounded-full px-3 py-1.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            Benchmark
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2">

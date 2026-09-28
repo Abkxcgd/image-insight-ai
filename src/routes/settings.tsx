@@ -5,17 +5,25 @@ import { useDarkMode } from "@/hooks/useDarkMode";
 import { useHistory } from "@/hooks/useHistory";
 import { Switch } from "@/components/ui/switch";
 import { MODEL_NAME } from "@/hooks/useImageClassifier";
+import { useEffect, useState } from "react";
+import { getEnginePreference, setEnginePreference } from "@/lib/inference/registry";
+import type { EnginePreference } from "@/lib/inference/registry";
+import {
+  DEFAULT_LOCAL_ENDPOINT,
+  getLocalEndpoint,
+  setLocalEndpoint,
+} from "@/lib/inference/local-service-engine";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — VisionAI" },
+      { title: "Settings — Image Insight AI" },
       {
         name: "description",
-        content: "Manage your VisionAI preferences: dark mode, prediction history, and more.",
+        content: "Manage Image Insight AI: inference engine, dark mode and locally stored prediction history.",
       },
-      { property: "og:title", content: "Settings — VisionAI" },
-      { property: "og:description", content: "Manage VisionAI preferences." },
+      { property: "og:title", content: "Settings — Image Insight AI" },
+      { property: "og:description", content: "Manage Image Insight AI preferences." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -26,6 +34,13 @@ export const Route = createFileRoute("/settings")({
 function SettingsPage() {
   const { isDark, toggle } = useDarkMode();
   const { entries, clear } = useHistory();
+  const [pref, setPref] = useState<EnginePreference>("auto");
+  const [endpoint, setEndpointState] = useState(DEFAULT_LOCAL_ENDPOINT);
+
+  useEffect(() => {
+    setPref(getEnginePreference());
+    setEndpointState(getLocalEndpoint());
+  }, []);
 
   const handleClear = () => {
     clear();
@@ -46,7 +61,7 @@ function SettingsPage() {
           <span className="gradient-text">Settings</span>
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Personalise VisionAI. Everything stays in your browser.
+          Personalise Image Insight AI. Everything stays on this device.
         </p>
 
         <div className="mt-8 space-y-4">
@@ -98,6 +113,46 @@ function SettingsPage() {
             </div>
           </section>
 
+          {/* Inference engine */}
+          <section className="glass rounded-2xl p-5">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Inference engine
+            </h2>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Auto prefers the local Snapdragon service and falls back to browser demo mode when
+              it is not reachable.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {(["auto", "local", "browser"] as const).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => {
+                    setEnginePreference(p);
+                    setPref(p);
+                    toast.success("Engine preference saved — reload to apply.");
+                  }}
+                  className={`rounded-full px-4 py-2 text-xs font-semibold transition hover:scale-105 ${
+                    pref === p
+                      ? "bg-[image:var(--gradient-primary)] text-primary-foreground"
+                      : "bg-muted"
+                  }`}
+                >
+                  {p === "auto" ? "Auto" : p === "local" ? "Local (Snapdragon)" : "Browser demo"}
+                </button>
+              ))}
+            </div>
+            <label className="mt-4 block text-xs text-muted-foreground">
+              Local service endpoint
+              <input
+                value={endpoint}
+                onChange={(e) => setEndpointState(e.target.value)}
+                onBlur={() => setLocalEndpoint(endpoint)}
+                className="mt-1 w-full rounded-lg bg-muted px-3 py-2 text-sm text-foreground"
+                aria-label="Local inference service endpoint"
+              />
+            </label>
+          </section>
+
           {/* About */}
           <section className="glass rounded-2xl p-5">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
@@ -108,9 +163,10 @@ function SettingsPage() {
                 <Info className="h-4 w-4" />
               </div>
               <div className="text-sm">
-                <p className="font-semibold">VisionAI</p>
+                <p className="font-semibold">Image Insight AI — Snapdragon Edition</p>
                 <p className="text-muted-foreground">
-                  Powered by {MODEL_NAME}. All inference happens on your device.
+                  Private AI vision, accelerated on Snapdragon. Browser demo mode uses{" "}
+                  {MODEL_NAME}; the local service reports its own model.
                 </p>
               </div>
             </div>

@@ -78,13 +78,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "VisionAI — Instant Image Classification" },
+      { title: "Image Insight AI — Private AI Vision, Accelerated on Snapdragon" },
       {
         name: "description",
         content:
           "Private, on-device image classification with MobileNet v2 and TensorFlow.js.",
       },
-      { name: "author", content: "VisionAI" },
+      { name: "author", content: "Image Insight AI" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

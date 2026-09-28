@@ -1,75 +1,127 @@
-# VisionAI 🔮
+# Image Insight AI — Snapdragon Edition
 
-A production-ready, privacy-first **AI image classification** web app that runs entirely in your browser. Drop, browse, or snap a photo — get instant top‑5 predictions with confidence bars. Nothing is uploaded. Ever.
+**Private AI Vision, Accelerated on Snapdragon.**
 
-![Stack](https://img.shields.io/badge/React-19-61dafb) ![TS](https://img.shields.io/badge/TypeScript-strict-3178c6) ![Vite](https://img.shields.io/badge/Vite-7-646cff) ![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8) ![TF.js](https://img.shields.io/badge/TensorFlow.js-MobileNet%20v2-ff6f00)
+On-device image intelligence that runs in the browser today and on the
+Snapdragon NPU through ONNX Runtime + the QNN Execution Provider on a Windows
+on Snapdragon PC. Images never leave the device.
 
-## ✨ Features
+## 1. The original Image Insight AI
 
-- 🖼️ **Drag & drop, click, or camera capture** — JPG / PNG / WEBP / GIF up to 10 MB
-- 🧠 **On-device inference** using pretrained **MobileNet v2 (α = 1.0)**
-- 🏆 **Top‑5 predictions** with animated confidence bars and inference timing (ms)
-- 🕘 **Prediction history** stored locally (up to 20 entries) with thumbnails
-- 📄 **Export as PDF** — one-click branded report of your predictions
-- 🔗 **Share & copy** results (Web Share API with clipboard fallback)
-- 📷 **Webcam capture** with front/back camera toggle
-- 🖼️ **Automatic image compression** before inference (browser-image-compression)
-- 🎬 **Framer Motion** animations and smooth micro-interactions
-- 💎 **Apple-inspired glassmorphism** UI with animated gradient blobs
-- 🌗 **Dark mode** with system preference detection
-- ⚙️ **Settings page** — theme, clear history, model info
-- ❓ **FAQ** and contact-rich footer
-- 🔔 **Sonner toast notifications** for every action
-- ♿ **Accessibility**: aria-labels, keyboard focus, semantic HTML
-- 📱 **Fully responsive** — mobile-first design
-- ⚡ **Lazy-loaded** TensorFlow.js and MobileNet — minimal initial bundle
-- 🛡️ **Robust error handling** for unsupported files, camera errors, model failures
+A browser-based vision app: drag-and-drop or webcam input, MobileNet v2 via
+TensorFlow.js, top-5 predictions with confidence bars, inference timing, local
+history with thumbnails, PDF reports, dark mode, responsive and accessible UI.
+All of that is preserved.
 
-## 🧰 Tech Stack
+## 2. Why Snapdragon optimization was needed
 
-- **React 19** + **TypeScript** (strict) + **TanStack Router / Start**
-- **Vite 7** + **Tailwind CSS v4** (CSS-first tokens, semantic color system)
-- **TensorFlow.js** + **@tensorflow-models/mobilenet**
-- **Framer Motion**, **lucide-react**, **sonner**
-- **jspdf**, **browser-image-compression**
+Browser WebGL inference is portable but leaves the dedicated AI accelerator
+idle, cannot report what hardware actually ran the model, and depends on
+fetching model weights over the network on first use. Snapdragon PCs ship an
+NPU designed for exactly this workload.
 
-## 📁 Folder Structure
+## 3. What changed
 
-```
-src/
-├── components/       # Navbar, Hero, Classifier, PredictionList, HowItWorks,
-│                     # AboutModel, FAQ, HistoryPanel, CameraCapture, Footer, ...
-├── pages/            # Home
-├── hooks/            # useDarkMode, useImageClassifier, useHistory
-├── utils/            # image (validate/compress/thumbnail), pdf
-├── routes/           # __root, index, settings   (TanStack file-based routing)
-└── styles.css        # Design tokens & glass / gradient utilities
-```
+* An `InferenceEngine` adapter (`src/lib/inference`) sits between the UI and
+  any backend: `BrowserInferenceEngine`, `LocalServiceEngine`.
+* A local inference service (`local-inference/server.py`) runs ONNX Runtime
+  with the QNN EP and a CPU fallback.
+* A runtime status panel, privacy dashboard, model information panel and a
+  `/benchmark` screen, all fed by real backend data.
+* Export and verification scripts under `scripts/`.
 
-## 🚀 Getting Started
+## 4. Qualcomm AI Hub integration
+
+MobileNet-v2 exported from Qualcomm AI Hub for ONNX Runtime on the target
+Snapdragon device. Full compatibility checklist and export commands:
+[`docs/ai-hub-integration.md`](docs/ai-hub-integration.md).
+
+## 5. ONNX Runtime
+
+The sidecar creates an `InferenceSession` and reports
+`onnxruntime.__version__`, the activated providers and the model's real input
+shape to the UI.
+
+## 6. QNN Execution Provider
+
+Requested as `QNNExecutionProvider` with `backend_path: QnnHtp.dll`, with
+`CPUExecutionProvider` behind it.
+
+## 7. NPU execution
+
+Reported as NPU **only** when ONNX Runtime confirms the QNN EP is active.
+Verify independently with `python scripts/verify_npu.py`, which prints
+providers, node placement per provider and back-to-back QNN vs CPU latency.
+
+## 8. CPU fallback
+
+If QNN initialisation fails, the session is rebuilt on the CPU provider and
+the UI shows "Running on CPU fallback". If the sidecar itself is unreachable,
+the app runs "Browser demo mode" and says so. Neither is ever presented as NPU
+inference.
+
+## 9. Privacy architecture
+
+* Inference is local in every mode — browser tab or loopback service.
+* The sidecar binds `127.0.0.1`, accepts loopback origins only, and makes no
+  outbound requests.
+* Uploads are type-checked and capped at 10 MB; frames are posted under a
+  fixed filename, so the original filename is never transmitted.
+* History and thumbnails live in browser local storage and can be cleared in
+  Settings. No accounts, no analytics, no API keys in the frontend.
+
+## 10. Benchmark methodology
+
+See [`docs/benchmarking.md`](docs/benchmarking.md). Model-execution time only,
+warm-up reported separately, fixed image, configurable run count. **No
+performance claims are published until measured on the target device.**
+
+## 11. Setup
+
+Frontend (any machine):
 
 ```bash
 bun install
-bun run dev
+bun run dev        # http://localhost:8080
 ```
 
-Open http://localhost:8080 and drop an image — or hit **Use camera**.
+Local inference service (Windows on Snapdragon, Python 3.11/3.12 ARM64):
 
-## 🧪 How It Works
+```bash
+python -m venv .venv && .venv\Scripts\activate
+pip install -r local-inference/requirements.txt
+```
 
-1. On first interaction, **MobileNet v2** (~16 MB) is lazily fetched and initialised on the WebGL backend.
-2. Uploaded images are auto-compressed (max 1600px, ~1 MB) before decoding into an `HTMLImageElement`.
-3. The model runs inference locally, timed with `performance.now()`.
-4. Top‑5 predictions render with animated confidence bars.
-5. Each classification is saved to `localStorage` with a JPEG thumbnail.
-6. Reports can be exported as branded PDFs via `jsPDF`.
+## 12. Running on a Snapdragon Windows PC
 
-Your images **never leave your device**. 🔒
+```bash
+pip install qai-hub qai-hub-models
+qai-hub configure --api_token <YOUR_TOKEN>
+python scripts/export_model.py --device "<your AI Hub device name>"
+python scripts/verify_npu.py --model models/mobilenet_v2.onnx
+python local-inference/server.py --model models/mobilenet_v2.onnx
+```
 
-## ⚙️ Settings
+Then start the frontend **on the same machine** and open
+`http://localhost:8080`. Settings → Inference engine → "Local (Snapdragon)".
+A hosted HTTPS deployment cannot reach a plain-HTTP loopback service
+(mixed content), so the Snapdragon path is demonstrated locally or with TLS
+on the sidecar.
 
-Visit `/settings` to toggle dark mode, view model info, and clear your prediction history.
+## Documentation
 
-## 📜 License
+* [Snapdragon architecture](docs/snapdragon-architecture.md)
+* [AI Hub integration](docs/ai-hub-integration.md)
+* [Benchmarking](docs/benchmarking.md)
+* [Development process](docs/development-process.md)
+* [Challenge story](docs/challenge-story.md)
 
-MIT — do whatever makes you happy.
+## Tech stack
+
+React 19 · TypeScript (strict) · Vite · TanStack Start/Router · Tailwind CSS v4
+· Framer Motion · TensorFlow.js (demo mode) · ONNX Runtime + QNN EP · FastAPI
+
+## License
+
+MIT for the application code. Model licenses are set by their source — check
+the Qualcomm AI Hub model page before redistribution.

@@ -30,3 +30,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local inference artefacts (never commit model binaries or local paths)
+models/*.onnx
+models/*.bin
+models/*.dlc
+models/*.tflite
+models/imagenet_labels.txt
+local-inference/.venv/
+*.onnxruntime_profile*.json
