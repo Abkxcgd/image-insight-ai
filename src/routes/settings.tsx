@@ -17,13 +17,13 @@ import {
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — VisionAI" },
+      { title: "Settings — Image Insight AI" },
       {
         name: "description",
-        content: "Manage your VisionAI preferences: dark mode, prediction history, and more.",
+        content: "Manage Image Insight AI: inference engine, dark mode and locally stored prediction history.",
       },
-      { property: "og:title", content: "Settings — VisionAI" },
-      { property: "og:description", content: "Manage VisionAI preferences." },
+      { property: "og:title", content: "Settings — Image Insight AI" },
+      { property: "og:description", content: "Manage Image Insight AI preferences." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -61,7 +61,7 @@ function SettingsPage() {
           <span className="gradient-text">Settings</span>
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Personalise VisionAI. Everything stays in your browser.
+          Personalise Image Insight AI. Everything stays on this device.
         </p>
 
         <div className="mt-8 space-y-4">

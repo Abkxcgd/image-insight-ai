@@ -8,7 +8,7 @@ import {
 const FAQS = [
   {
     q: "Are my images uploaded anywhere?",
-    a: "No. VisionAI runs the entire model inside your browser using TensorFlow.js. Your images never leave your device.",
+    a: "No. Inference runs either inside your browser or through a local service on your own machine. Your images never leave your device.",
   },
   {
     q: "Which model powers the predictions?",
@@ -40,7 +40,7 @@ export function FAQ() {
           Frequently asked <span className="gradient-text">questions</span>
         </h2>
         <p className="mt-3 text-muted-foreground">
-          Everything you might be wondering about VisionAI.
+          Everything you might be wondering about Image Insight AI.
         </p>
       </div>
       <div className="glass mt-10 rounded-2xl p-2 sm:p-4">

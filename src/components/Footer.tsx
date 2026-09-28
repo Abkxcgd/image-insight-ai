@@ -61,7 +61,7 @@ export function Footer() {
             Built with <Heart className="h-3.5 w-3.5 fill-accent text-accent" /> using
             TensorFlow.js
           </p>
-          <p>© {new Date().getFullYear()} VisionAI. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Image Insight AI. All rights reserved.</p>
         </div>
       </div>
     </footer>

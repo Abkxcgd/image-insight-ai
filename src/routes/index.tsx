@@ -4,17 +4,20 @@ import { Home } from "@/pages/Home";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "VisionAI — Instant Image Classification in Your Browser" },
+      { title: "Image Insight AI — Private AI Vision, Accelerated on Snapdragon" },
       {
         name: "description",
         content:
-          "Drop any photo and get instant AI predictions with confidence scores. Powered by MobileNet and TensorFlow.js — runs entirely in your browser.",
+          "On-device image classification with top-5 predictions, real runtime and accelerator reporting, benchmarking and a privacy dashboard. Nothing is uploaded.",
       },
-      { property: "og:title", content: "VisionAI — Instant Image Classification" },
+      {
+        property: "og:title",
+        content: "Image Insight AI — Snapdragon Edition",
+      },
       {
         property: "og:description",
         content:
-          "Private, browser-based image classification with top-5 predictions. No uploads, no servers.",
+          "Private AI vision on your own device: ONNX Runtime with the QNN execution provider, honest NPU/CPU status and measured benchmarks.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

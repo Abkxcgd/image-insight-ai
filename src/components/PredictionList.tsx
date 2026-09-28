@@ -40,7 +40,7 @@ export function PredictionList({
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(
-        `VisionAI predictions (${modelName})\n${asText()}`,
+        `Image Insight AI predictions (${modelName})\n${asText()}`,
       );
       toast.success("Predictions copied to clipboard");
     } catch {
@@ -49,10 +49,10 @@ export function PredictionList({
   };
 
   const share = async () => {
-    const text = `Check out my VisionAI prediction:\n${asText()}`;
+    const text = `Check out my Image Insight AI prediction:\n${asText()}`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: "VisionAI predictions", text });
+        await navigator.share({ title: "Image Insight AI predictions", text });
       } else {
         await navigator.clipboard.writeText(text);
         toast.success("Copied — share it anywhere!");
