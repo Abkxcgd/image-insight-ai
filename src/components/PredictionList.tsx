@@ -1,4 +1,4 @@
-import { Copy, Download, Loader2, Share2, Timer } from "lucide-react";
+import { Copy, Download, Loader2, Share2, Timer, Volume2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { formatConfidence, primaryLabel } from "@/utils/image";
@@ -11,6 +11,20 @@ interface Props {
   inferenceMs: number | null;
   modelName: string;
   thumbnail?: string;
+}
+
+// Plain-language summary of what the local model detected. Built only from
+// the model's own output — no external vision service is involved.
+function describe(predictions: Prediction[]): string {
+  if (!predictions.length) return "No predictions available.";
+  const [top, ...rest] = predictions;
+  const others = rest
+    .slice(0, 2)
+    .map((p) => `${primaryLabel(p.className)} at ${formatConfidence(p.probability)}`)
+    .join(", ");
+  return `Most likely ${primaryLabel(top.className)}, ${formatConfidence(top.probability)} confidence.${
+    others ? ` Other possibilities: ${others}.` : ""
+  }`;
 }
 
 // Displays ranked predictions with confidence bars and action buttons.
@@ -126,7 +140,26 @@ export function PredictionList({
         })}
       </ul>
 
+      {/* Accessibility: announced to screen readers, and readable aloud on
+          request using the browser's own speech synthesis (no cloud API). */}
+      <p aria-live="polite" className="sr-only">
+        {describe(predictions)}
+      </p>
+
       <div className="flex flex-wrap gap-2 pt-2">
+        <button
+          onClick={() => {
+            if (!("speechSynthesis" in window)) {
+              toast.error("Speech is not available in this browser");
+              return;
+            }
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(describe(predictions)));
+          }}
+          className="glass inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-medium hover:scale-105 transition"
+        >
+          <Volume2 className="h-3.5 w-3.5" /> Describe scene
+        </button>
         <button
           onClick={copy}
           className="glass inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-medium hover:scale-105 transition"
