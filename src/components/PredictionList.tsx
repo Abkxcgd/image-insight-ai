@@ -1,4 +1,4 @@
-import { Copy, Download, Loader2, Share2, Timer } from "lucide-react";
+import { Copy, Download, Loader2, Share2, Timer, Volume2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { formatConfidence, primaryLabel } from "@/utils/image";
@@ -11,6 +11,20 @@ interface Props {
   inferenceMs: number | null;
   modelName: string;
   thumbnail?: string;
+}
+
+// Plain-language summary of what the local model detected. Built only from
+// the model's own output — no external vision service is involved.
+function describe(predictions: Prediction[]): string {
+  if (!predictions.length) return "No predictions available.";
+  const [top, ...rest] = predictions;
+  const others = rest
+    .slice(0, 2)
+    .map((p) => `${primaryLabel(p.className)} at ${formatConfidence(p.probability)}`)
+    .join(", ");
+  return `Most likely ${primaryLabel(top.className)}, ${formatConfidence(top.probability)} confidence.${
+    others ? ` Other possibilities: ${others}.` : ""
+  }`;
 }
 
 // Displays ranked predictions with confidence bars and action buttons.
