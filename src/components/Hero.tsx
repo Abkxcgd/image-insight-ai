@@ -16,14 +16,15 @@ export function Hero() {
         <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
           <span className="glass mb-6 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium">
             <Sparkles className="h-3.5 w-3.5 text-primary" />
-            Powered by MobileNet · Runs in your browser
+            Image Insight AI · Snapdragon Edition
           </span>
           <h1 className="text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl md:text-7xl">
-            See what your <span className="gradient-text">images</span> really are.
+            Private AI vision, <span className="gradient-text">accelerated</span> on Snapdragon.
           </h1>
           <p className="mt-6 max-w-xl text-base text-muted-foreground sm:text-lg">
-            Drop any photo and get instant AI predictions with confidence scores.
-            Zero uploads, zero servers — your images never leave your device.
+            Drop any photo and get instant predictions with confidence scores. Inference runs on
+            your own device — the runtime panel below reports exactly which engine and accelerator
+            handled it.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <button
