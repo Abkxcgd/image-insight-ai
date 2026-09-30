@@ -126,7 +126,26 @@ export function PredictionList({
         })}
       </ul>
 
+      {/* Accessibility: announced to screen readers, and readable aloud on
+          request using the browser's own speech synthesis (no cloud API). */}
+      <p aria-live="polite" className="sr-only">
+        {describe(predictions)}
+      </p>
+
       <div className="flex flex-wrap gap-2 pt-2">
+        <button
+          onClick={() => {
+            if (!("speechSynthesis" in window)) {
+              toast.error("Speech is not available in this browser");
+              return;
+            }
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(describe(predictions)));
+          }}
+          className="glass inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-medium hover:scale-105 transition"
+        >
+          <Volume2 className="h-3.5 w-3.5" /> Describe scene
+        </button>
         <button
           onClick={copy}
           className="glass inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-medium hover:scale-105 transition"
